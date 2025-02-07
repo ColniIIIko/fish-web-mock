@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,49 +8,44 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum ReportStatus {
-  Active
-  Pending
-  Rejected
-}
-
 model Report {
-  id        String   @id @default(uuid()) @db.Uuid
-  city      String
-  nickname  String?
-  boat      String?
-  landing   String?
-  type      String?
-  pictures  String[]
-  userEmail String
-
+  id         String       @id @default(uuid()) @db.Uuid
+  nickname   String?
+  boat       String?
+  landing    String?
+  type       String?
+  pictures   String[]
+  userEmail  String
   status     ReportStatus
-  fishes     ReportFish[]
   anglers    Int?
   conditions Int?
-
-  setup  String?
-  report String?
-
-  tripDate  DateTime
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at")
+  setup      String?
+  report     String?
+  tripDate   DateTime
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt  DateTime?    @map("deleted_at")
+  city       String
+  fishes     ReportFish[]
 
   @@map("report")
 }
 
 model ReportFish {
-  id String @id @default(uuid()) @db.Uuid
-
-  report_id String @db.Uuid
-  report    Report @relation(fields: [report_id], references: [id])
-
+  id          String   @id @default(uuid()) @db.Uuid
+  report_id   String   @db.Uuid
   species     String
-  caught      Int
   length      Int?
   weight      Int?
   attachments String[]
+  caught      Int
+  report      Report   @relation(fields: [report_id], references: [id])
 
   @@map("fish")
+}
+
+enum ReportStatus {
+  Accepted
+  Pending
+  Rejected
 }
