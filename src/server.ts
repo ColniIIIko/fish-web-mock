@@ -182,7 +182,7 @@ app.post(
 );
 
 app.put(
-  '/editTrip',
+  '/editTrip/:id',
   upload.fields([
     { name: 'pictures', maxCount: 10 },
     { name: 'fishCaughtPictures', maxCount: 50 },
@@ -190,7 +190,8 @@ app.put(
   adminAuth,
   async (req: Request, res: Response) => {
     try {
-      const { tripId, ...fieldsToUpdate } = req.body;
+      const tripId = req.params['id'];
+      const fieldsToUpdate = req.body;
 
       if (!tripId) {
         res.status(400).json({ error: 'tripId is required' });
