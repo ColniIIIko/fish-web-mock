@@ -39,7 +39,7 @@ model ReportFish {
   weight      Int?
   attachments String[]
   caught      Int
-  report      Report   @relation(fields: [report_id], references: [id])
+  report      Report   @relation(fields: [report_id], references: [id], onDelete: Cascade)
 
   @@map("fish")
 }
