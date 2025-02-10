@@ -43,7 +43,7 @@ const adminAuth: RequestHandler = (
 ) => {
   const adminToken = req.headers['x-admin-api-key'];
   if (adminToken !== process.env.ADMIN_TOKEN) {
-    res.status(403).json({ error: 'Unauthorized access' });
+    res.status(403).json({ message: 'Unauthorized access' });
     return;
   }
   next();
@@ -176,74 +176,66 @@ app.post(
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Failed to create trip' });
+      res.status(500).json({ message: 'Failed to create trip' });
     }
   }
 );
 
-app.put(
-  '/editTrip/:id',
-  upload.fields([
-    { name: 'pictures', maxCount: 10 },
-    { name: 'fishCaughtPictures', maxCount: 50 },
-  ]),
-  adminAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const tripId = req.params['id'];
-      const fieldsToUpdate = req.body;
+app.put('/editTrip/:id', adminAuth, async (req: Request, res: Response) => {
+  try {
+    const tripId = req.params['id'];
 
-      if (!tripId) {
-        res.status(400).json({ error: 'tripId is required' });
-        return;
-      }
+    const fieldsToUpdate = req.body;
 
-      //@ts-ignore
-      if (req.files?.['pictures']) {
-        //@ts-ignore
-        const pictures = req.files['pictures'] as Express.Multer.File[];
-        const uploadedPictures = await Promise.all(
-          pictures.map(async (file) => await uploadFileToSupabase(file))
-        );
-        fieldsToUpdate.pictures = uploadedPictures.filter(Boolean);
-      }
-
-      if (fieldsToUpdate.fishCaught) {
-        const fishCaughtData = JSON.parse(fieldsToUpdate.fishCaught || '[]');
-        const processedFishCaught = await Promise.all(
-          fishCaughtData.map(async (fish: any) => {
-            //@ts-ignore
-            const fishPictures = req.files?.[
-              'fishCaughtPictures'
-            ] as Express.Multer.File[];
-            const uploadedFishPictures = await Promise.all(
-              fishPictures.map(async (file) => await uploadFileToSupabase(file))
-            );
-            return {
-              ...fish,
-              attachments: uploadedFishPictures.filter(Boolean),
-            };
-          })
-        );
-        fieldsToUpdate.fishes = {
-          deleteMany: {}, // Clear existing fishes
-          create: processedFishCaught,
-        };
-      }
-
-      // Update the trip in the database
-      const updatedReport = await prisma.report.update({
-        where: { id: tripId },
-        data: fieldsToUpdate,
-      });
-
-      res.json(updatedReport);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to update trip' });
+    if (!tripId) {
+      res.status(400).json({ message: 'tripId is required' });
+      return;
     }
+
+    //@ts-ignore
+    // if (req.files?.['pictures']) {
+    //   //@ts-ignore
+    //   const pictures = req.files['pictures'] as Express.Multer.File[];
+    //   const uploadedPictures = await Promise.all(
+    //     pictures.map(async (file) => await uploadFileToSupabase(file))
+    //   );
+    //   fieldsToUpdate.pictures = uploadedPictures.filter(Boolean);
+    // }
+
+    // if (fieldsToUpdate.fishCaught) {
+    //   const fishCaughtData = JSON.parse(fieldsToUpdate.fishCaught || '[]');
+    //   const processedFishCaught = await Promise.all(
+    //     fishCaughtData.map(async (fish: any) => {
+    //       //@ts-ignore
+    //       const fishPictures = req.files?.[
+    //         'fishCaughtPictures'
+    //       ] as Express.Multer.File[];
+    //       const uploadedFishPictures = await Promise.all(
+    //         fishPictures.map(async (file) => await uploadFileToSupabase(file))
+    //       );
+    //       return {
+    //         ...fish,
+    //         attachments: uploadedFishPictures.filter(Boolean),
+    //       };
+    //     })
+    //   );
+    //   fieldsToUpdate.fishes = {
+    //     deleteMany: {}, // Clear existing fishes
+    //     create: processedFishCaught,
+    //   };
+    // }
+    // Update the trip in the database
+    const updatedReport = await prisma.report.update({
+      where: { id: tripId },
+      data: fieldsToUpdate,
+    });
+
+    res.json(updatedReport);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update trip' });
   }
-);
+});
 
 app.get('/getTripsList', adminAuth, async (req: Request, res: Response) => {
   try {
@@ -257,7 +249,7 @@ app.get('/getTripsList', adminAuth, async (req: Request, res: Response) => {
     res.json(trips);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to fetch trips' });
+    res.status(500).json({ message: 'Failed to fetch trips' });
   }
 });
 
@@ -275,9 +267,30 @@ app.get('/getTrip/:id', adminAuth, async (req: Request, res: Response) => {
     res.json(trip);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to fetch trips' });
+    res.status(500).json({ message: 'Failed to fetch trips' });
   }
 });
+
+app.delete(
+  '/deleteTrip/:id',
+  adminAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const id = req.params['id'];
+
+      await prisma.report.delete({
+        where: {
+          id,
+        },
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to delete trip' });
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
