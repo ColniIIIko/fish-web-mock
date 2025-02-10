@@ -143,7 +143,7 @@ app.post(
           })
         );
       } else {
-        processedFishCaught = fishCaught;
+        processedFishCaught = fishCaughtData;
       }
 
       // Save to the database
