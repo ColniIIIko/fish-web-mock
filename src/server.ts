@@ -292,6 +292,196 @@ app.delete(
   }
 );
 
+app.get('/getTripTypes', adminAuth, async (req: Request, res: Response) => {
+  try {
+    res.json([
+      {
+        id: '1',
+        name: 'Business',
+      },
+      {
+        id: '2',
+        name: 'Leisure',
+      },
+      {
+        id: '3',
+        name: 'Adventure',
+      },
+      {
+        id: '4',
+        name: 'Family',
+      },
+      {
+        id: '5',
+        name: 'Cultural',
+      },
+      {
+        id: '6',
+        name: 'Romantic',
+      },
+      {
+        id: '7',
+        name: 'Solo',
+      },
+    ]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+});
+
+app.get('/getLocations', adminAuth, async (req: Request, res: Response) => {
+  try {
+    res.json([
+      {
+        id: '1',
+        name: 'New York City',
+      },
+      {
+        id: '2',
+        name: 'Paris',
+      },
+      {
+        id: '3',
+        name: 'Tokyo',
+      },
+      {
+        id: '4',
+        name: 'Rome',
+      },
+      {
+        id: '5',
+        name: 'Sydney',
+      },
+      {
+        id: '6',
+        name: 'Cape Town',
+      },
+      {
+        id: '7',
+        name: 'Rio de Janeiro',
+      },
+    ]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+});
+
+app.get('/getLandingTypes', adminAuth, async (req: Request, res: Response) => {
+  try {
+    res.json([
+      {
+        id: '1',
+        name: 'Hotel',
+      },
+      {
+        id: '2',
+        name: 'Hostel',
+      },
+      {
+        id: '3',
+        name: 'Apartment',
+      },
+      {
+        id: '4',
+        name: 'Resort',
+      },
+      {
+        id: '5',
+        name: 'Bed and Breakfast',
+      },
+      {
+        id: '6',
+        name: 'Camping',
+      },
+      {
+        id: '7',
+        name: 'Vacation Rental',
+      },
+    ]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+});
+
+app.get('/getFishTypes', adminAuth, async (req: Request, res: Response) => {
+  try {
+    res.json([
+      {
+        id: '1',
+        name: 'Trout',
+      },
+      {
+        id: '2',
+        name: 'Salmon',
+      },
+      {
+        id: '3',
+        name: 'Bass',
+      },
+      {
+        id: '4',
+        name: 'Catfish',
+      },
+      {
+        id: '5',
+        name: 'Pike',
+      },
+      {
+        id: '6',
+        name: 'Walleye',
+      },
+      {
+        id: '7',
+        name: 'Mackerel',
+      },
+    ]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+});
+
+app.get('/getBoatNames', adminAuth, async (req: Request, res: Response) => {
+  try {
+    res.json([
+      {
+        id: '1',
+        name: 'Sea Breeze',
+      },
+      {
+        id: '2',
+        name: 'Wave Rider',
+      },
+      {
+        id: '3',
+        name: 'Ocean Explorer',
+      },
+      {
+        id: '4',
+        name: 'Sunset Cruiser',
+      },
+      {
+        id: '5',
+        name: 'Aqua Dream',
+      },
+      {
+        id: '6',
+        name: 'Nautical Adventure',
+      },
+      {
+        id: '7',
+        name: 'Coral Reef',
+      },
+    ]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch trips' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
