@@ -117,34 +117,27 @@ app.post(
         fishCaughtData = [fishCaughtData];
       }
 
-      let processedFishCaught;
-      if (fishPictures) {
-        processedFishCaught = await Promise.all(
-          fishCaughtData.map(async (fish: any) => {
-            const { picturesCount, ...restFish } = fish;
+      const processedFishCaught = await Promise.all(
+        fishCaughtData.map(async (fish: any) => {
+          const { picturesCount, ...restFish } = fish;
 
-            console.log(fish);
-            if (picturesCount && picturesCount > 0) {
-              const fishPicture = fishPictures.slice(0, picturesCount);
-              fishPictures = fishPictures.slice(picturesCount);
+          console.log(fish);
+          if (picturesCount && picturesCount > 0) {
+            const fishPicture = fishPictures.slice(0, picturesCount);
+            fishPictures = fishPictures.slice(picturesCount);
 
-              const uploadedFishPictures = await Promise.all(
-                fishPicture.map(
-                  async (file) => await uploadFileToSupabase(file)
-                )
-              );
-              return {
-                ...restFish,
-                attachments: uploadedFishPictures.filter(Boolean),
-              };
-            } else {
-              return restFish;
-            }
-          })
-        );
-      } else {
-        processedFishCaught = fishCaughtData;
-      }
+            const uploadedFishPictures = await Promise.all(
+              fishPicture.map(async (file) => await uploadFileToSupabase(file))
+            );
+            return {
+              ...restFish,
+              attachments: uploadedFishPictures.filter(Boolean),
+            };
+          } else {
+            return restFish;
+          }
+        })
+      );
 
       // Save to the database
       const createdReport = await prisma.report.create({
@@ -181,61 +174,165 @@ app.post(
   }
 );
 
-app.put('/editTrip/:id', adminAuth, async (req: Request, res: Response) => {
-  try {
-    const tripId = req.params['id'];
+app.put(
+  '/editTrip/:id',
+  upload.fields([
+    { name: 'pictures', maxCount: 10 },
+    { name: 'fishCaughtPictures', maxCount: 50 }, // For fishCaught pictures
+  ]),
+  adminAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const tripId = req.params['id'];
 
-    const fieldsToUpdate = req.body;
+      if (!tripId) {
+        res.status(400).json({ message: 'tripId is required' });
+        return;
+      }
 
-    if (!tripId) {
-      res.status(400).json({ message: 'tripId is required' });
-      return;
+      const trip = await prisma.report.findFirst({
+        where: {
+          id: tripId,
+        },
+      });
+
+      if (!trip) {
+        res.status(400).json({ message: 'trip not found' });
+        return;
+      }
+
+      const { fishCaught, ...fieldsToUpdate } = req.body;
+
+      //@ts-ignore
+      const pictures = (req.files?.['pictures'] ?? []) as Express.Multer.File[];
+      const uploadedPictures = await Promise.all(
+        pictures.map(async (file) => await uploadFileToSupabase(file))
+      );
+
+      if (trip.pictures) {
+        fieldsToUpdate.pictures = [...trip.pictures, ...uploadedPictures];
+      } else {
+        fieldsToUpdate.pictures = uploadedPictures;
+      }
+
+      //@ts-ignore
+      let fishPictures = req.files?.[
+        'fishCaughtPictures'
+      ] as Express.Multer.File[];
+
+      let fishCaughtData = JSON.parse(fishCaught || '[]');
+
+      if (!Array.isArray(fishCaughtData)) {
+        fishCaughtData = [fishCaughtData];
+      }
+
+      let idx = 0;
+      const processedFishCaught = await Promise.all(
+        fishCaughtData.map(async (fish: any) => {
+          const { attachments, picturesCount, ...restFish } = fish;
+
+          if (!attachments || attachments.length === 0) {
+            if (!picturesCount) {
+              return restFish;
+            }
+
+            const fishPicture = fishPictures.slice(0, picturesCount);
+            fishPictures = fishPictures.slice(picturesCount);
+
+            const uploadedFishPictures = await Promise.all(
+              fishPicture.map(async (file) => await uploadFileToSupabase(file))
+            );
+            return {
+              ...restFish,
+              attachments: uploadedFishPictures.filter(Boolean),
+            };
+          } else {
+            return {
+              ...restFish,
+              attachments,
+            };
+          }
+        })
+      );
+
+      const currentFish = processedFishCaught.filter((fish) =>
+        Boolean(fish.id)
+      );
+      const createFish = processedFishCaught
+        .filter((fish) => !Boolean(fish.id))
+        .map((fish) => ({ ...fish, report_id: tripId }));
+
+      if (fieldsToUpdate.conditions) {
+        fieldsToUpdate.conditions = Number(fieldsToUpdate.conditions);
+      }
+
+      if (fieldsToUpdate.anglers) {
+        fieldsToUpdate.anglers = Number(fieldsToUpdate.anglers);
+      }
+
+      //@ts-ignore
+      // if (req.files?.['pictures']) {
+      //   //@ts-ignore
+      //   const pictures = req.files['pictures'] as Express.Multer.File[];
+      //   const uploadedPictures = await Promise.all(
+      //     pictures.map(async (file) => await uploadFileToSupabase(file))
+      //   );
+      //   fieldsToUpdate.pictures = uploadedPictures.filter(Boolean);
+      // }
+
+      // if (fieldsToUpdate.fishCaught) {
+      //   const fishCaughtData = JSON.parse(fieldsToUpdate.fishCaught || '[]');
+      //   const processedFishCaught = await Promise.all(
+      //     fishCaughtData.map(async (fish: any) => {
+      //       //@ts-ignore
+      //       const fishPictures = req.files?.[
+      //         'fishCaughtPictures'
+      //       ] as Express.Multer.File[];
+      //       const uploadedFishPictures = await Promise.all(
+      //         fishPictures.map(async (file) => await uploadFileToSupabase(file))
+      //       );
+      //       return {
+      //         ...fish,
+      //         attachments: uploadedFishPictures.filter(Boolean),
+      //       };
+      //     })
+      //   );
+      //   fieldsToUpdate.fishes = {
+      //     deleteMany: {}, // Clear existing fishes
+      //     create: processedFishCaught,
+      //   };
+      // }
+      // Update the trip in the database
+
+      currentFish.forEach(async (fish) => {
+        const { id, ...restFish } = fish;
+
+        await prisma.reportFish.update({
+          where: { id },
+          data: restFish,
+        });
+      });
+
+      await prisma.reportFish.createMany({
+        data: createFish,
+      });
+
+      const updatedReport = await prisma.report.update({
+        where: { id: tripId },
+        data: fieldsToUpdate,
+      });
+
+      const report = await prisma.report.findFirst({
+        where: { id: tripId },
+      });
+
+      res.json(report);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to update trip' });
     }
-
-    //@ts-ignore
-    // if (req.files?.['pictures']) {
-    //   //@ts-ignore
-    //   const pictures = req.files['pictures'] as Express.Multer.File[];
-    //   const uploadedPictures = await Promise.all(
-    //     pictures.map(async (file) => await uploadFileToSupabase(file))
-    //   );
-    //   fieldsToUpdate.pictures = uploadedPictures.filter(Boolean);
-    // }
-
-    // if (fieldsToUpdate.fishCaught) {
-    //   const fishCaughtData = JSON.parse(fieldsToUpdate.fishCaught || '[]');
-    //   const processedFishCaught = await Promise.all(
-    //     fishCaughtData.map(async (fish: any) => {
-    //       //@ts-ignore
-    //       const fishPictures = req.files?.[
-    //         'fishCaughtPictures'
-    //       ] as Express.Multer.File[];
-    //       const uploadedFishPictures = await Promise.all(
-    //         fishPictures.map(async (file) => await uploadFileToSupabase(file))
-    //       );
-    //       return {
-    //         ...fish,
-    //         attachments: uploadedFishPictures.filter(Boolean),
-    //       };
-    //     })
-    //   );
-    //   fieldsToUpdate.fishes = {
-    //     deleteMany: {}, // Clear existing fishes
-    //     create: processedFishCaught,
-    //   };
-    // }
-    // Update the trip in the database
-    const updatedReport = await prisma.report.update({
-      where: { id: tripId },
-      data: fieldsToUpdate,
-    });
-
-    res.json(updatedReport);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to update trip' });
   }
-});
+);
 
 app.get('/getTripsList', adminAuth, async (req: Request, res: Response) => {
   try {
@@ -244,6 +341,26 @@ app.get('/getTripsList', adminAuth, async (req: Request, res: Response) => {
     const trips = await prisma.report.findMany({
       where: userEmail ? { userEmail: userEmail as string } : {},
       include: { fishes: true },
+    });
+
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const {
+      data: { users },
+      error,
+    } = await supabase.auth.admin.listUsers();
+
+    if (error || !users) {
+      res.status(500).json({ message: 'Failed to fetch trips' });
+    }
+
+    trips.forEach((trip) => {
+      const user = users.find((u) => u.email === trip.userEmail);
+      // @ts-ignore
+      trip['userRole'] = user?.user_metadata.role;
     });
 
     res.json(trips);
