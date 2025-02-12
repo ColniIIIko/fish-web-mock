@@ -411,36 +411,21 @@ app.delete(
 
 app.get('/getTripTypes', adminAuth, async (req: Request, res: Response) => {
   try {
-    res.json([
-      {
-        id: '1',
-        name: 'Business',
-      },
-      {
-        id: '2',
-        name: 'Leisure',
-      },
-      {
-        id: '3',
-        name: 'Adventure',
-      },
-      {
-        id: '4',
-        name: 'Family',
-      },
-      {
-        id: '5',
-        name: 'Cultural',
-      },
-      {
-        id: '6',
-        name: 'Romantic',
-      },
-      {
-        id: '7',
-        name: 'Solo',
-      },
-    ]);
+    const tripTypes = await prisma.trip_types.findMany();
+
+    res.json(
+      tripTypes.map((tt) => ({
+        id: tt.trip_id,
+        name: tt.trip_type,
+      }))
+    );
+
+    console.log(
+      tripTypes.map((tt) => ({
+        id: tt.trip_id,
+        name: tt.trip_type,
+      }))
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch trips' });
@@ -449,36 +434,14 @@ app.get('/getTripTypes', adminAuth, async (req: Request, res: Response) => {
 
 app.get('/getLocations', adminAuth, async (req: Request, res: Response) => {
   try {
-    res.json([
-      {
-        id: '1',
-        name: 'New York City',
-      },
-      {
-        id: '2',
-        name: 'Paris',
-      },
-      {
-        id: '3',
-        name: 'Tokyo',
-      },
-      {
-        id: '4',
-        name: 'Rome',
-      },
-      {
-        id: '5',
-        name: 'Sydney',
-      },
-      {
-        id: '6',
-        name: 'Cape Town',
-      },
-      {
-        id: '7',
-        name: 'Rio de Janeiro',
-      },
-    ]);
+    const locations = await prisma.locations.findMany();
+
+    res.json(
+      locations.map((loc) => ({
+        id: loc.location_id,
+        name: loc.location_name,
+      }))
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch trips' });
@@ -487,36 +450,14 @@ app.get('/getLocations', adminAuth, async (req: Request, res: Response) => {
 
 app.get('/getLandingTypes', adminAuth, async (req: Request, res: Response) => {
   try {
-    res.json([
-      {
-        id: '1',
-        name: 'Hotel',
-      },
-      {
-        id: '2',
-        name: 'Hostel',
-      },
-      {
-        id: '3',
-        name: 'Apartment',
-      },
-      {
-        id: '4',
-        name: 'Resort',
-      },
-      {
-        id: '5',
-        name: 'Bed and Breakfast',
-      },
-      {
-        id: '6',
-        name: 'Camping',
-      },
-      {
-        id: '7',
-        name: 'Vacation Rental',
-      },
-    ]);
+    const landings = await prisma.landings.findMany();
+
+    res.json(
+      landings.map((landing) => ({
+        id: landing.landing_id,
+        name: landing.landing_name,
+      }))
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch trips' });
@@ -525,36 +466,14 @@ app.get('/getLandingTypes', adminAuth, async (req: Request, res: Response) => {
 
 app.get('/getFishTypes', adminAuth, async (req: Request, res: Response) => {
   try {
-    res.json([
-      {
-        id: '1',
-        name: 'Trout',
-      },
-      {
-        id: '2',
-        name: 'Salmon',
-      },
-      {
-        id: '3',
-        name: 'Bass',
-      },
-      {
-        id: '4',
-        name: 'Catfish',
-      },
-      {
-        id: '5',
-        name: 'Pike',
-      },
-      {
-        id: '6',
-        name: 'Walleye',
-      },
-      {
-        id: '7',
-        name: 'Mackerel',
-      },
-    ]);
+    const fishTypes = await prisma.fish_types.findMany();
+
+    res.json(
+      fishTypes.map((ft) => ({
+        id: ft.fish_id,
+        name: ft.fish_type,
+      }))
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch trips' });
@@ -563,36 +482,14 @@ app.get('/getFishTypes', adminAuth, async (req: Request, res: Response) => {
 
 app.get('/getBoatNames', adminAuth, async (req: Request, res: Response) => {
   try {
-    res.json([
-      {
-        id: '1',
-        name: 'Sea Breeze',
-      },
-      {
-        id: '2',
-        name: 'Wave Rider',
-      },
-      {
-        id: '3',
-        name: 'Ocean Explorer',
-      },
-      {
-        id: '4',
-        name: 'Sunset Cruiser',
-      },
-      {
-        id: '5',
-        name: 'Aqua Dream',
-      },
-      {
-        id: '6',
-        name: 'Nautical Adventure',
-      },
-      {
-        id: '7',
-        name: 'Coral Reef',
-      },
-    ]);
+    const boats = await prisma.boats.findMany();
+
+    res.json(
+      boats.map((b) => ({
+        id: b.boat_id,
+        name: b.boat_name,
+      }))
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch trips' });

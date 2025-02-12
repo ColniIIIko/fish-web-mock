@@ -44,6 +44,62 @@ model ReportFish {
   @@map("fish")
 }
 
+model boats {
+  boat_id    Int       @id
+  boat_name  String    @db.VarChar(255)
+  landing_id Int
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
+model fish_types {
+  fish_id    Int       @id
+  fish_type  String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
+model landings {
+  landing_id   Int       @id
+  landing_name String    @db.VarChar(255)
+  location_id  Int
+  news_url     String?   @db.VarChar(255)
+  table_url    String?   @db.VarChar(255)
+  booknow_url  String?   @db.VarChar(255)
+  config       Json?     @db.Json
+  news_config  Json?     @db.Json
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  deleted_at   DateTime? @db.Timestamp(6)
+}
+
+model locations {
+  location_id                    Int       @id
+  location_name                  String?   @db.VarChar(255)
+  noaa_ocean_air_temp_station_id String?   @db.VarChar(255)
+  noaa_water_temp_station_id     String?   @db.VarChar(255)
+  noaa_tide_station_id           String?   @db.VarChar(255)
+  noaa_wave_height_url           String?   @db.VarChar(255)
+  noaa_wave_height_spec_url      String?   @db.VarChar(255)
+  nws_weather_url                String?   @db.VarChar(255)
+  open_weather_latitude          String?   @db.VarChar(255)
+  open_weather_longitude         String?   @db.VarChar(255)
+  created_at                     DateTime? @default(now()) @db.Timestamp(6)
+  updated_at                     DateTime? @default(now()) @db.Timestamp(6)
+  deleted_at                     DateTime? @db.Timestamp(6)
+}
+
+model trip_types {
+  trip_id    Int       @id
+  trip_type  String?   @db.VarChar(255)
+  trip_order Int?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
 enum ReportStatus {
   Accepted
   Pending
