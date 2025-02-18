@@ -201,7 +201,7 @@ app.put(
         return;
       }
 
-      const { fishCaught, ...fieldsToUpdate } = req.body;
+      const { fishCaught, picturesAction, ...fieldsToUpdate } = req.body;
 
       //@ts-ignore
       const pictures = (req.files?.['pictures'] ?? []) as Express.Multer.File[];
@@ -218,6 +218,11 @@ app.put(
       } else {
         fieldsToUpdate.pictures = uploadedPictures;
       }
+
+      if (picturesAction && picturesAction === 'delete') {
+        fieldsToUpdate.pictures = [];
+      }
+
       //@ts-ignore
       let fishPictures = req.files?.[
         'fishCaughtPictures'
