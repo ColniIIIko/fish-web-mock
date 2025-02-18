@@ -210,11 +210,14 @@ app.put(
       );
 
       if (trip.pictures) {
-        fieldsToUpdate.pictures = [...trip.pictures, ...uploadedPictures];
+        fieldsToUpdate.pictures = [...trip.pictures];
+
+        if (uploadedPictures.length) {
+          fieldsToUpdate.pictures = uploadedPictures;
+        }
       } else {
         fieldsToUpdate.pictures = uploadedPictures;
       }
-
       //@ts-ignore
       let fishPictures = req.files?.[
         'fishCaughtPictures'
@@ -233,7 +236,7 @@ app.put(
 
           if (!attachments || attachments.length === 0) {
             if (!picturesCount) {
-              return restFish;
+              return { attachments, ...restFish };
             }
 
             const fishPicture = fishPictures.slice(0, picturesCount);
