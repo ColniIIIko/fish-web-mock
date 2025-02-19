@@ -241,7 +241,7 @@ app.put(
 
           if (!attachments || attachments.length === 0) {
             if (!picturesCount) {
-              return { attachments, ...restFish };
+              return { attachments: [], ...restFish };
             }
 
             const fishPicture = fishPictures.slice(0, picturesCount);
