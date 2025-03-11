@@ -33,6 +33,8 @@ const upload = multer({
   },
 });
 
+app.use(cors());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -507,3 +509,6 @@ app.get('/getBoatNames', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+function cors(): any {
+  throw new Error('Function not implemented.');
+}
