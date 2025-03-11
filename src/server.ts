@@ -417,7 +417,7 @@ app.delete(
   }
 );
 
-app.get('/getTripTypes', adminAuth, async (req: Request, res: Response) => {
+app.get('/getTripTypes', async (req: Request, res: Response) => {
   try {
     const tripTypes = await prisma.trip_types.findMany();
 
@@ -440,7 +440,7 @@ app.get('/getTripTypes', adminAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/getLocations', adminAuth, async (req: Request, res: Response) => {
+app.get('/getLocations', async (req: Request, res: Response) => {
   try {
     const locations = await prisma.locations.findMany();
 
@@ -456,7 +456,7 @@ app.get('/getLocations', adminAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/getLandingTypes', adminAuth, async (req: Request, res: Response) => {
+app.get('/getLandingTypes', async (req: Request, res: Response) => {
   try {
     const landings = await prisma.landings.findMany();
 
@@ -472,7 +472,7 @@ app.get('/getLandingTypes', adminAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/getFishTypes', adminAuth, async (req: Request, res: Response) => {
+app.get('/getFishTypes', async (req: Request, res: Response) => {
   try {
     const fishTypes = await prisma.fish_types.findMany();
 
@@ -488,7 +488,7 @@ app.get('/getFishTypes', adminAuth, async (req: Request, res: Response) => {
   }
 });
 
-app.get('/getBoatNames', adminAuth, async (req: Request, res: Response) => {
+app.get('/getBoatNames', async (req: Request, res: Response) => {
   try {
     const boats = await prisma.boats.findMany();
 
