@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express, {
   NextFunction,
@@ -509,6 +510,3 @@ app.get('/getBoatNames', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-function cors(): any {
-  throw new Error('Function not implemented.');
-}
